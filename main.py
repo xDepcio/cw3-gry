@@ -427,31 +427,114 @@ class Game:
 
 
 
+# def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
+#     if depth == 0 or board.end():
+#         evaluation = board.evaluate()
+#         return evaluation, None
+
+#     moves = board.get_possible_moves(move_max)
+#     best_move = None
+
+#     if move_max:
+#         for move in moves:
+#             board_cp = deepcopy(board)
+#             board_cp.make_ai_move(move)
+#             score, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
+#             if score > a:
+#                 a = score
+#                 best_move = move
+#             if a >= b:
+#                 break
+#         return a, best_move
+#     else:
+#         for move in moves:
+#             board_cp = deepcopy(board)
+#             board_cp.make_ai_move(move)
+#             score, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
+#             if score < b:
+#                 b = score
+#                 best_move = move
+#             if a >= b:
+#                 break
+#         return b, best_move
 
 def minimax_a_b(board, depth):
-    best_eval, best_move = minimax_a_b_recurr(board, depth, True, -np.inf, np.inf)
+    best_eval, best_move = minimax_a_b_recurr(board, depth, True)
     print("Best move:", best_move, best_eval)
     return best_move
     #ToDo
     # return best_move
 
-def minimax_a_b_recurr(board, depth, move_max, a, b):
+def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
     if depth == 0 or board.end():
         evaluation = board.evaluate()
         return evaluation, None
 
+    best_move = None
     moves = board.get_possible_moves(move_max)
-    evals: List[Tuple[int, Move]] = []
-    for move in moves:
-        board_cp = deepcopy(board)
-        board_cp.make_ai_move(move)
-        move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, not move_max, a, b)
-        evals.append((move_eval, move))
-
     if move_max:
-        return max(evals, key=lambda x: x[0])
+        for move in moves:
+            board_cp = deepcopy(board)
+            board_cp.make_ai_move(move)
+            mv_eval = minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0]
+            if mv_eval > a:
+                a = mv_eval
+                best_move = move
+            # a = max(a, minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0])
+            if a >= b:
+                return b, move
+        return a, best_move
     else:
-        return min(evals, key=lambda x: x[0])
+        for move in moves:
+            board_cp = deepcopy(board)
+            board_cp.make_ai_move(move)
+            mv_eval = minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0]
+            if mv_eval < b:
+                b = mv_eval
+                best_move = move
+            # b = min(b, minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0])
+            if a >= b:
+                return a, move
+        return b, best_move
+    # -----------------------------
+    # if depth == 0 or board.end():
+    #     evaluation = board.evaluate()
+    #     return evaluation, None
+
+    # moves = board.get_possible_moves(move_max)
+    # if move_max:
+    #     for move in moves:
+    #         board_cp = deepcopy(board)
+    #         board_cp.make_ai_move(move)
+    #         a = max(a, minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0])
+    #         if a >= b:
+    #             return b, move
+    #     return a, move
+    # else:
+    #     for move in moves:
+    #         board_cp = deepcopy(board)
+    #         board_cp.make_ai_move(move)
+    #         b = min(b, minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0])
+    #         if a >= b:
+    #             return a, move
+    #     return b, move
+    # -----------------------------
+    # if depth == 0 or board.end():
+    #     evaluation = board.evaluate()
+    #     return evaluation, None
+
+    # moves = board.get_possible_moves(move_max)
+    # evals: List[Tuple[int, Move]] = []
+    # for move in moves:
+    #     board_cp = deepcopy(board)
+    #     board_cp.make_ai_move(move)
+    #     move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, not move_max, a, b)
+    #     evals.append((move_eval, move))
+
+    # if move_max:
+    #     return max(evals, key=lambda x: x[0])
+    # else:
+    #     return min(evals, key=lambda x: x[0])
     # -----------------------------
     # if depth == 0 or board.end():
     #     return board.evaluate(move_max), None
