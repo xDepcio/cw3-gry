@@ -428,32 +428,33 @@ class Game:
 
 
 def minimax_a_b(board, depth):
-    best_move: Move = minimax_a_b_recurr(board, depth, True, -np.inf, np.inf)
-    print("Best eval:", best_move)
+    best_eval, best_move = minimax_a_b_recurr(board, depth, True, -np.inf, np.inf)
+    print("Best move:", best_move, best_eval)
     return best_move
     #ToDo
     # return best_move
 
 def minimax_a_b_recurr(board, depth, move_max, a, b):
     if depth == 0 or board.end():
-        return board.evaluate(move_max)
+        return board.evaluate(move_max), None
 
     if move_max:
         max_eval = -np.inf
         for move in board.get_possible_moves(move_max):
             board_cp = deepcopy(board)
             board_cp.make_ai_move(move)
-            move_eval = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
+            move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
             max_eval = max(max_eval, move_eval)
-        return max_eval
+            print("max_eval:", max_eval, depth)
+        return max_eval, move
     else:
         min_eval = np.inf
         for move in board.get_possible_moves(move_max):
             board_cp = deepcopy(board)
             board_cp.make_ai_move(move)
-            move_eval = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
+            move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
             min_eval = min(min_eval, move_eval)
-        return min_eval
+        return min_eval, move
     # best_move = None
     # if board.end() or depth == 0:
     #     return board.evaluate(move_max), best_move
