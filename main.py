@@ -15,6 +15,7 @@ Nalezy napisac funkcje minimax_a_b_recurr, minimax_a_b (woĹa funkcjÄ rekur
 ChÄtni mogÄ ulepszaÄ mĂłj kod (trzeba oznaczyÄ komentarzem co zostaĹo zmienione), mogÄ rĂłwnieĹź dodaÄ obsĹugÄ bicia wielokrotnego i wymagania bicia. MogÄ rĂłwnieĹź wdroĹźyÄ reguĹy: https://en.wikipedia.org/wiki/Russian_draughts
 """
 
+from typing import List, Tuple
 import numpy as np
 import pygame
 from copy import deepcopy
@@ -293,23 +294,23 @@ class Board:
         return pos_moves
 
     #ToDo
-    def evaluate(self, is_blue_turn):
+    def evaluate(self):
         h=0
         for row in range(BOARD_WIDTH):
             for col in range((row+1) % 2, BOARD_WIDTH, 2):
                 field = self.board[row][col]
                 # print(row, col, self.board[row][col], type(self.board[row][col]), isinstance(self.board[row][col], Pawn))
 
-                if isinstance(field, Pawn):
+                if isinstance(field, King):
                     if field.is_blue():
-                        h-=1
-                    else:
-                        h+=1
-                elif isinstance(field, King):
-                    if field.is_blue():
-                        h-=10
-                    else:
                         h+=10
+                    else:
+                        h-=10
+                elif isinstance(field, Pawn):
+                    if field.is_blue():
+                        h+=1
+                    else:
+                        h-=1
                 #ToDo
         return h
 
@@ -436,25 +437,43 @@ def minimax_a_b(board, depth):
 
 def minimax_a_b_recurr(board, depth, move_max, a, b):
     if depth == 0 or board.end():
-        return board.evaluate(move_max), None
+        evaluation = board.evaluate()
+        return evaluation, None
+
+    moves = board.get_possible_moves(move_max)
+    evals: List[Tuple[int, Move]] = []
+    for move in moves:
+        board_cp = deepcopy(board)
+        board_cp.make_ai_move(move)
+        move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, not move_max, a, b)
+        evals.append((move_eval, move))
 
     if move_max:
-        max_eval = -np.inf
-        for move in board.get_possible_moves(move_max):
-            board_cp = deepcopy(board)
-            board_cp.make_ai_move(move)
-            move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
-            max_eval = max(max_eval, move_eval)
-            print("max_eval:", max_eval, depth)
-        return max_eval, move
+        return max(evals, key=lambda x: x[0])
     else:
-        min_eval = np.inf
-        for move in board.get_possible_moves(move_max):
-            board_cp = deepcopy(board)
-            board_cp.make_ai_move(move)
-            move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
-            min_eval = min(min_eval, move_eval)
-        return min_eval, move
+        return min(evals, key=lambda x: x[0])
+    # -----------------------------
+    # if depth == 0 or board.end():
+    #     return board.evaluate(move_max), None
+
+    # if move_max:
+    #     max_eval = -np.inf
+    #     for move in board.get_possible_moves(move_max):
+    #         board_cp = deepcopy(board)
+    #         board_cp.make_ai_move(move)
+    #         move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
+    #         max_eval = max(max_eval, move_eval)
+    #         print("max_eval:", max_eval, depth)
+    #     return max_eval, move
+    # else:
+    #     min_eval = np.inf
+    #     for move in board.get_possible_moves(move_max):
+    #         board_cp = deepcopy(board)
+    #         board_cp.make_ai_move(move)
+    #         move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
+    #         min_eval = min(min_eval, move_eval)
+    #     return min_eval, move
+    # -----------------------------
     # best_move = None
     # if board.end() or depth == 0:
     #     return board.evaluate(move_max), best_move
