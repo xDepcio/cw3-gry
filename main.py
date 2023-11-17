@@ -297,7 +297,19 @@ class Board:
         h=0
         for row in range(BOARD_WIDTH):
             for col in range((row+1) % 2, BOARD_WIDTH, 2):
-                pass
+                field = self.board[row][col]
+                print(row, col, self.board[row][col], type(self.board[row][col]), isinstance(self.board[row][col], Pawn))
+
+                if isinstance(field, Pawn):
+                    if field.is_blue():
+                        h-=1
+                    else:
+                        h+=1
+                elif isinstance(field, King):
+                    if field.is_blue():
+                        h-=10
+                    else:
+                        h+=10
                 #ToDo
         return h
 
@@ -440,8 +452,10 @@ def main():
             break #przydalby sie jakiĹ komunikat kto wygraĹ zamiast break
 
         if not game.board.white_turn:
-            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH)
-            game.board.make_ai_move(move)
+            print(game.board.evaluate(True))
+            game.board.white_turn = True
+            # move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH)
+            # game.board.make_ai_move(move)
 
 
         for event in pygame.event.get():
