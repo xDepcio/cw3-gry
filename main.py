@@ -461,12 +461,52 @@ def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
                 return a, move
         return b, best_move
 
+class BoardsInfo:
+    def __init__(self, stored_length: int=5):
+        self.stored_length = stored_length
+        self.boards: List[Board] = []
 
-def main():
+    def add(self, board: Board):
+        self.boards.append(board)
+        if len(self.boards) > self.stored_length:
+            self.boards.pop(0)
+
+    def get_stored_length(self) -> int:
+        return self.stored_length
+
+    def are_all_equal(self) -> bool:
+        boards_data = []
+        for board in self.boards:
+            board_d = []
+            for col in board.board:
+                for field in col:
+                    if isinstance(field, King):
+                        board_d.append('K')
+                    elif isinstance(field, Pawn):
+                        board_d.append('P')
+                    else:
+                        board_d.append('.')
+            boards_data.append(board_d)
+
+        # print("BD", boards_data)
+
+        for i in range(len(boards_data)-1):
+            for j in range(len(boards_data[0])):
+                if boards_data[i][j] != boards_data[i+1][j]:
+                    return False
+
+        return True
+
+    def boards_count(self) -> int:
+        return len(self.boards)
+
+def play_visualized(all_bots=False):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
     clock = pygame.time.Clock()
     game = Game(window)
+    boards_info = BoardsInfo(5)
+    added_last = False
 
     while is_running:
         clock.tick(FPS)
@@ -474,15 +514,25 @@ def main():
 
         if game.board.end():
             is_running = False
+            if len(game.board.get_possible_moves(game.board.white_turn)) == 0:
+                print("Blue won!")
+            elif len(game.board.get_possible_moves(not game.board.white_turn)) == 0:
+                print("White won!")
+            else:
+                print("Draw!")
+            break
 
-            break #przydalby sie jakiĹ komunikat kto wygraĹ zamiast break
-
-        if not game.board.white_turn:
-            # print(game.board.evaluate(True))
-            # game.board.white_turn = True
+        if not game.board.white_turn or all_bots:
             move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH, not game.board.white_turn)
             game.board.make_ai_move(move)
 
+        if not game.board.white_turn:
+            added_last = not added_last
+            if not added_last:
+                boards_info.add(deepcopy(game.board))
+                if boards_info.boards_count() == boards_info.get_stored_length() and boards_info.are_all_equal():
+                    print("Draw!")
+                    break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -495,5 +545,17 @@ def main():
         game.update()
 
     pygame.quit()
+
+
+def main():
+    play_visualized(all_bots=True)
+    # print(Field().__str__())
+    # print(Field().__str__())
+    # print(Field().__str__())
+    # print(Field().__str__())
+    # print(Pawn().__str__())
+    # print(King(pawn=Pawn(false, )).__str__())
+    # print(Field().__str__())
+
 
 main()
