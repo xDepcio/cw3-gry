@@ -532,6 +532,24 @@ def evaluate2(board: Board):
 
     return h
 
+def evaluate3(board: Board):
+    h=0
+    for row in range(BOARD_WIDTH):
+        for col in range((row+1) % 2, BOARD_WIDTH, 2):
+            field = board.board[row][col]
+            field_type = board.get_field_type(row, col)
+
+            if field_type == 'b_king':
+                h+=10
+            elif field_type == 'w_king':
+                h-=10
+            elif field_type == 'b_pawn':
+                h += 5 + row+1
+            elif field_type == 'w_pawn':
+                h -= 5 + BOARD_WIDTH-row
+
+    return h
+
 def play_visualized(all_bots=False, eval_func: Callable[[Board], int]=evaluate):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
@@ -608,7 +626,7 @@ def play_not_visualized(eval_func: Callable[[Board], int]=evaluate):
 
 def main():
     start = time.time()
-    play_visualized(all_bots=True, eval_func=evaluate)
+    play_visualized(all_bots=True, eval_func=evaluate3)
     end = time.time()
     print("Time:", end-start)
 
