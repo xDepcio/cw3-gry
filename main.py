@@ -419,13 +419,13 @@ class Game:
         self.board.clicked_at(row, col)
 
 
-def minimax_a_b(board, depth, move_max, eval_func: Callable[[Board], int]):
+def minimax_a_b(board, depth, move_max, eval_func: Callable[[Board], int | float]):
     best_eval, best_move = minimax_a_b_recurr(board, depth, move_max, eval_func)
     print("Best move:", best_move, best_eval)
     return best_move
 
 
-def minimax_a_b_recurr(board, depth, move_max, eval_func: Callable[[Board], int], a=-np.inf, b=np.inf):
+def minimax_a_b_recurr(board, depth, move_max, eval_func: Callable[[Board], int | float], a=-np.inf, b=np.inf):
     if depth == 0 or board.end():
         evaluation = eval_func(board)
         return evaluation, None
@@ -508,6 +508,55 @@ def evaluate(board: Board):
 
     return h
 
+def evaluate1(board: Board):
+    h=0
+    for row in range(BOARD_WIDTH):
+        for col in range((row+1) % 2, BOARD_WIDTH, 2):
+            field = board.board[row][col]
+            field_type = board.get_field_type(row, col)
+
+            if field_type == 'b_king':
+                h+=10
+            elif field_type == 'w_king':
+                h-=10
+            elif field_type == 'b_pawn':
+                h+=1
+            elif field_type == 'w_pawn':
+                h-=1
+
+            spot_bonus = 0.0
+            if row > 0:
+                if col > 0:
+                    f_type = board.get_field_type(row-1, col-1)
+                    if f_type == 'b_pawn':
+                        spot_bonus+=0.25
+                    elif f_type == 'w_pawn':
+                        spot_bonus-=0.25
+                if col < BOARD_WIDTH-1:
+                    f_type = board.get_field_type(row-1, col+1)
+                    if f_type == 'b_pawn':
+                        spot_bonus+=0.25
+                    elif f_type == 'w_pawn':
+                        spot_bonus-=0.25
+
+            if row < BOARD_WIDTH-1:
+                if col > 0:
+                    f_type = board.get_field_type(row+1, col-1)
+                    if f_type == 'b_pawn':
+                        spot_bonus+=0.25
+                    elif f_type == 'w_pawn':
+                        spot_bonus-=0.25
+                if col < BOARD_WIDTH-1:
+                    f_type = board.get_field_type(row+1, col+1)
+                    if f_type == 'b_pawn':
+                        spot_bonus+=0.25
+                    elif f_type == 'w_pawn':
+                        spot_bonus-=0.25
+
+            h += spot_bonus
+
+    return h
+
 def evaluate2(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
@@ -550,7 +599,7 @@ def evaluate3(board: Board):
 
     return h
 
-def play_visualized(all_bots=False, eval_func: Callable[[Board], int]=evaluate):
+def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=evaluate):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
     clock = pygame.time.Clock()
@@ -596,7 +645,7 @@ def play_visualized(all_bots=False, eval_func: Callable[[Board], int]=evaluate):
 
     pygame.quit()
 
-def play_not_visualized(eval_func: Callable[[Board], int]=evaluate):
+def play_not_visualized(eval_func: Callable[[Board], int | float]=evaluate):
     is_running = True
     boards_info = BoardsInfo(5)
     added_last = False
@@ -626,7 +675,7 @@ def play_not_visualized(eval_func: Callable[[Board], int]=evaluate):
 
 def main():
     start = time.time()
-    play_visualized(all_bots=True, eval_func=evaluate3)
+    play_visualized(all_bots=True, eval_func=evaluate1)
     end = time.time()
     print("Time:", end-start)
 
