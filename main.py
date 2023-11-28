@@ -490,7 +490,7 @@ class BoardsInfo:
     def boards_count(self) -> int:
         return len(self.boards)
 
-def evaluate(board: Board):
+def evaluate0(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
         for col in range((row+1) % 2, BOARD_WIDTH, 2):
@@ -599,7 +599,7 @@ def evaluate3(board: Board):
 
     return h
 
-def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=evaluate):
+def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=evaluate0):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
     clock = pygame.time.Clock()
@@ -645,7 +645,7 @@ def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=ev
 
     pygame.quit()
 
-def play_not_visualized(eval_func: Callable[[Board], int | float]=evaluate):
+def play_not_visualized(eval_func: Callable[[Board], int | float]=evaluate0):
     is_running = True
     boards_info = BoardsInfo(5)
     added_last = False
