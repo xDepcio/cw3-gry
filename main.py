@@ -425,45 +425,11 @@ class Game:
         self.board.clicked_at(row, col)
 
 
-
-
-# def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
-#     if depth == 0 or board.end():
-#         evaluation = board.evaluate()
-#         return evaluation, None
-
-#     moves = board.get_possible_moves(move_max)
-#     best_move = None
-
-#     if move_max:
-#         for move in moves:
-#             board_cp = deepcopy(board)
-#             board_cp.make_ai_move(move)
-#             score, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
-#             if score > a:
-#                 a = score
-#                 best_move = move
-#             if a >= b:
-#                 break
-#         return a, best_move
-#     else:
-#         for move in moves:
-#             board_cp = deepcopy(board)
-#             board_cp.make_ai_move(move)
-#             score, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
-#             if score < b:
-#                 b = score
-#                 best_move = move
-#             if a >= b:
-#                 break
-#         return b, best_move
-
-def minimax_a_b(board, depth):
-    best_eval, best_move = minimax_a_b_recurr(board, depth, True)
+def minimax_a_b(board, depth, move_max):
+    best_eval, best_move = minimax_a_b_recurr(board, depth, move_max)
     print("Best move:", best_move, best_eval)
     return best_move
-    #ToDo
-    # return best_move
+
 
 def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
     if depth == 0 or board.end():
@@ -480,7 +446,6 @@ def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
             if mv_eval > a:
                 a = mv_eval
                 best_move = move
-            # a = max(a, minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0])
             if a >= b:
                 return b, move
         return a, best_move
@@ -492,106 +457,10 @@ def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
             if mv_eval < b:
                 b = mv_eval
                 best_move = move
-            # b = min(b, minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0])
             if a >= b:
                 return a, move
         return b, best_move
-    # -----------------------------
-    # if depth == 0 or board.end():
-    #     evaluation = board.evaluate()
-    #     return evaluation, None
 
-    # moves = board.get_possible_moves(move_max)
-    # if move_max:
-    #     for move in moves:
-    #         board_cp = deepcopy(board)
-    #         board_cp.make_ai_move(move)
-    #         a = max(a, minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0])
-    #         if a >= b:
-    #             return b, move
-    #     return a, move
-    # else:
-    #     for move in moves:
-    #         board_cp = deepcopy(board)
-    #         board_cp.make_ai_move(move)
-    #         b = min(b, minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0])
-    #         if a >= b:
-    #             return a, move
-    #     return b, move
-    # -----------------------------
-    # if depth == 0 or board.end():
-    #     evaluation = board.evaluate()
-    #     return evaluation, None
-
-    # moves = board.get_possible_moves(move_max)
-    # evals: List[Tuple[int, Move]] = []
-    # for move in moves:
-    #     board_cp = deepcopy(board)
-    #     board_cp.make_ai_move(move)
-    #     move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, not move_max, a, b)
-    #     evals.append((move_eval, move))
-
-    # if move_max:
-    #     return max(evals, key=lambda x: x[0])
-    # else:
-    #     return min(evals, key=lambda x: x[0])
-    # -----------------------------
-    # if depth == 0 or board.end():
-    #     return board.evaluate(move_max), None
-
-    # if move_max:
-    #     max_eval = -np.inf
-    #     for move in board.get_possible_moves(move_max):
-    #         board_cp = deepcopy(board)
-    #         board_cp.make_ai_move(move)
-    #         move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, False, a, b)
-    #         max_eval = max(max_eval, move_eval)
-    #         print("max_eval:", max_eval, depth)
-    #     return max_eval, move
-    # else:
-    #     min_eval = np.inf
-    #     for move in board.get_possible_moves(move_max):
-    #         board_cp = deepcopy(board)
-    #         board_cp.make_ai_move(move)
-    #         move_eval, _ = minimax_a_b_recurr(board_cp, depth-1, True, a, b)
-    #         min_eval = min(min_eval, move_eval)
-    #     return min_eval, move
-    # -----------------------------
-    # best_move = None
-    # if board.end() or depth == 0:
-    #     return board.evaluate(move_max), best_move
-
-    # if move_max:
-    #     best_eval = -np.inf
-    #     for move in board.get_possible_moves(move_max):
-    #         new_board = deepcopy(board)
-    #         new_board.make_ai_move(move)
-    #         old_best_eval = best_eval
-    #         new_best_eval, its_move = minimax_a_b_recurr(new_board, depth-1, not move_max, a, b)
-    #         best_eval = max(best_eval, new_best_eval)
-    #         # best_eval, its_move = max(best_eval, minimax_a_b_recurr(new_board, depth-1, not move_max, a, b)[0])
-    #         if best_eval > old_best_eval:
-    #             best_move = its_move
-    #         # a = max(a, best_eval)
-    #         # if b <= a:
-    #         #     break
-    # else:
-    #     best_eval = np.inf
-    #     for move in board.get_possible_moves(move_max):
-    #         new_board = deepcopy(board)
-    #         new_board.make_ai_move(move)
-    #         old_best_eval = best_eval
-    #         new_best_eval, its_move = minimax_a_b_recurr(new_board, depth-1, not move_max, a, b)
-    #         best_eval = min(best_eval, new_best_eval)
-    #         # best_eval, its_move = min(best_eval, minimax_a_b_recurr(new_board, depth-1, not move_max, a, b)[0])
-    #         if best_eval < old_best_eval:
-    #             best_move = its_move
-    #         # b = min(b, best_eval)
-    #         # if b <= a:
-    #         #     break
-
-    # return best_eval, best_move
-    #ToDo
 
 def main():
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -611,7 +480,7 @@ def main():
         if not game.board.white_turn:
             # print(game.board.evaluate(True))
             # game.board.white_turn = True
-            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH)
+            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH, not game.board.white_turn)
             game.board.make_ai_move(move)
 
 
