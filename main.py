@@ -15,6 +15,7 @@ Nalezy napisac funkcje minimax_a_b_recurr, minimax_a_b (woĹa funkcjÄ rekur
 ChÄtni mogÄ ulepszaÄ mĂłj kod (trzeba oznaczyÄ komentarzem co zostaĹo zmienione), mogÄ rĂłwnieĹź dodaÄ obsĹugÄ bicia wielokrotnego i wymagania bicia. MogÄ rĂłwnieĹź wdroĹźyÄ reguĹy: https://en.wikipedia.org/wiki/Russian_draughts
 """
 
+import time
 from typing import List, Tuple
 import numpy as np
 import pygame
@@ -22,7 +23,7 @@ from copy import deepcopy
 
 FPS = 20
 
-MINIMAX_DEPTH = 5
+MINIMAX_DEPTH = 7
 
 WIN_WIDTH = 800
 WIN_HEIGHT = 800
@@ -542,16 +543,45 @@ def play_visualized(all_bots=False):
 
     pygame.quit()
 
+def play_not_visualized():
+    is_running = True
+    boards_info = BoardsInfo(5)
+    added_last = False
+    initial_board = Board(None)
+
+    while is_running:
+        if initial_board.end():
+            is_running = False
+            if len(initial_board.get_possible_moves(initial_board.white_turn)) == 0:
+                print("Blue won!")
+            elif len(initial_board.get_possible_moves(not initial_board.white_turn)) == 0:
+                print("White won!")
+            else:
+                print("Draw!")
+            break
+
+        move = minimax_a_b( deepcopy(initial_board), MINIMAX_DEPTH, not initial_board.white_turn)
+        initial_board.make_ai_move(move)
+
+        if not initial_board.white_turn:
+            added_last = not added_last
+            if not added_last:
+                boards_info.add(deepcopy(initial_board))
+                if boards_info.boards_count() == boards_info.get_stored_length() and boards_info.are_all_equal():
+                    print("Draw!")
+                    is_running = False
 
 def main():
+    start = time.time()
     play_visualized(all_bots=True)
-    # print(Field().__str__())
-    # print(Field().__str__())
-    # print(Field().__str__())
-    # print(Field().__str__())
-    # print(Pawn().__str__())
-    # print(King(pawn=Pawn(false, )).__str__())
-    # print(Field().__str__())
+    end = time.time()
+    print("Time:", end-start)
+
+    start = time.time()
+    play_not_visualized()
+    end = time.time()
+    print("Time:", end-start)
+
 
 
 main()
