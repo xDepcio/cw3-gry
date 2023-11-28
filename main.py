@@ -16,7 +16,7 @@ ChÄtni mogÄ ulepszaÄ mĂłj kod (trzeba oznaczyÄ komentarzem co zost
 """
 
 import time
-from typing import List, Literal, Tuple
+from typing import Callable, List, Literal, Tuple
 import numpy as np
 import pygame
 from copy import deepcopy
@@ -308,49 +308,6 @@ class Board:
                 return 'w_pawn'
         return 'empty'
 
-    #ToDo
-    def evaluate(self):
-        h=0
-        for row in range(BOARD_WIDTH):
-            for col in range((row+1) % 2, BOARD_WIDTH, 2):
-                field = self.board[row][col]
-                field_type = self.get_field_type(row, col)
-
-                if field_type == 'b_king':
-                    h+=10
-                elif field_type == 'w_king':
-                    h-=10
-                elif field_type == 'b_pawn':
-                    h+=1
-                elif field_type == 'w_pawn':
-                    h-=1
-
-        return h
-
-    def evaluate2(self):
-        h=0
-        for row in range(BOARD_WIDTH):
-            for col in range((row+1) % 2, BOARD_WIDTH, 2):
-                field = self.board[row][col]
-                field_type = self.get_field_type(row, col)
-
-                if field_type == 'b_king':
-                    h+=10
-                elif field_type == 'w_king':
-                    h-=10
-                elif row <= BOARD_WIDTH/2:
-                    if field_type == 'b_pawn':
-                        h += 5
-                    elif field_type == 'w_pawn':
-                        h -= 7
-                else:
-                    if field_type == 'b_pawn':
-                        h += 7
-                    elif field_type == 'w_pawn':
-                        h -= 5
-
-        return h
-
     def get_possible_moves(self, is_blue_turn):
         pos_moves = []
         for row in range(BOARD_WIDTH):
@@ -462,15 +419,15 @@ class Game:
         self.board.clicked_at(row, col)
 
 
-def minimax_a_b(board, depth, move_max):
-    best_eval, best_move = minimax_a_b_recurr(board, depth, move_max)
+def minimax_a_b(board, depth, move_max, eval_func: Callable[[Board], int]):
+    best_eval, best_move = minimax_a_b_recurr(board, depth, move_max, eval_func)
     print("Best move:", best_move, best_eval)
     return best_move
 
 
-def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
+def minimax_a_b_recurr(board, depth, move_max, eval_func: Callable[[Board], int], a=-np.inf, b=np.inf):
     if depth == 0 or board.end():
-        evaluation = board.evaluate()
+        evaluation = eval_func(board)
         return evaluation, None
 
     best_move = None
@@ -479,7 +436,7 @@ def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
         for move in moves:
             board_cp = deepcopy(board)
             board_cp.make_ai_move(move)
-            mv_eval = minimax_a_b_recurr(board_cp, depth-1, False, a, b)[0]
+            mv_eval = minimax_a_b_recurr(board_cp, depth-1, False, eval_func, a, b)[0]
             if mv_eval > a:
                 a = mv_eval
                 best_move = move
@@ -490,7 +447,7 @@ def minimax_a_b_recurr(board, depth, move_max, a=-np.inf, b=np.inf):
         for move in moves:
             board_cp = deepcopy(board)
             board_cp.make_ai_move(move)
-            mv_eval = minimax_a_b_recurr(board_cp, depth-1, True, a, b)[0]
+            mv_eval = minimax_a_b_recurr(board_cp, depth-1, True, eval_func, a, b)[0]
             if mv_eval < b:
                 b = mv_eval
                 best_move = move
@@ -533,7 +490,49 @@ class BoardsInfo:
     def boards_count(self) -> int:
         return len(self.boards)
 
-def play_visualized(all_bots=False):
+def evaluate(board: Board):
+    h=0
+    for row in range(BOARD_WIDTH):
+        for col in range((row+1) % 2, BOARD_WIDTH, 2):
+            field = board.board[row][col]
+            field_type = board.get_field_type(row, col)
+
+            if field_type == 'b_king':
+                h+=10
+            elif field_type == 'w_king':
+                h-=10
+            elif field_type == 'b_pawn':
+                h+=1
+            elif field_type == 'w_pawn':
+                h-=1
+
+    return h
+
+def evaluate2(board: Board):
+    h=0
+    for row in range(BOARD_WIDTH):
+        for col in range((row+1) % 2, BOARD_WIDTH, 2):
+            field = board.board[row][col]
+            field_type = board.get_field_type(row, col)
+
+            if field_type == 'b_king':
+                h+=10
+            elif field_type == 'w_king':
+                h-=10
+            elif row <= BOARD_WIDTH/2:
+                if field_type == 'b_pawn':
+                    h += 5
+                elif field_type == 'w_pawn':
+                    h -= 7
+            else:
+                if field_type == 'b_pawn':
+                    h += 7
+                elif field_type == 'w_pawn':
+                    h -= 5
+
+    return h
+
+def play_visualized(all_bots=False, eval_func: Callable[[Board], int]=evaluate):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
     clock = pygame.time.Clock()
@@ -556,7 +555,7 @@ def play_visualized(all_bots=False):
             break
 
         if not game.board.white_turn or all_bots:
-            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH, not game.board.white_turn)
+            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH, not game.board.white_turn, eval_func)
             game.board.make_ai_move(move)
 
         if not game.board.white_turn:
@@ -579,7 +578,7 @@ def play_visualized(all_bots=False):
 
     pygame.quit()
 
-def play_not_visualized():
+def play_not_visualized(eval_func: Callable[[Board], int]=evaluate):
     is_running = True
     boards_info = BoardsInfo(5)
     added_last = False
@@ -596,7 +595,7 @@ def play_not_visualized():
                 print("Draw!")
             break
 
-        move = minimax_a_b( deepcopy(initial_board), MINIMAX_DEPTH, not initial_board.white_turn)
+        move = minimax_a_b( deepcopy(initial_board), MINIMAX_DEPTH, not initial_board.white_turn, eval_func)
         initial_board.make_ai_move(move)
 
         if not initial_board.white_turn:
@@ -609,7 +608,7 @@ def play_not_visualized():
 
 def main():
     start = time.time()
-    play_visualized(all_bots=True)
+    play_visualized(all_bots=True, eval_func=evaluate)
     end = time.time()
     print("Time:", end-start)
 
