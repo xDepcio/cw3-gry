@@ -16,14 +16,14 @@ ChÄtni mogÄ ulepszaÄ mĂłj kod (trzeba oznaczyÄ komentarzem co zost
 """
 
 import time
-from typing import List, Tuple
+from typing import List, Literal, Tuple
 import numpy as np
 import pygame
 from copy import deepcopy
 
 FPS = 20
 
-MINIMAX_DEPTH = 7
+MINIMAX_DEPTH = 5
 
 WIN_WIDTH = 800
 WIN_HEIGHT = 800
@@ -294,25 +294,61 @@ class Board:
                         pos_moves.append(Move(piece,new_row+dir_y, new_col+1, self.board[new_row][new_col]))
         return pos_moves
 
+    def get_field_type(self, row, col) -> Literal['b_pawn', 'w_pawn', 'b_king', 'w_king', 'empty']:
+        field = self.board[row][col]
+        if isinstance(field, King):
+            if field.is_blue():
+                return 'b_king'
+            else:
+                return 'w_king'
+        elif isinstance(field, Pawn):
+            if field.is_blue():
+                return 'b_pawn'
+            else:
+                return 'w_pawn'
+        return 'empty'
+
     #ToDo
     def evaluate(self):
         h=0
         for row in range(BOARD_WIDTH):
             for col in range((row+1) % 2, BOARD_WIDTH, 2):
                 field = self.board[row][col]
-                # print(row, col, self.board[row][col], type(self.board[row][col]), isinstance(self.board[row][col], Pawn))
+                field_type = self.get_field_type(row, col)
 
-                if isinstance(field, King):
-                    if field.is_blue():
-                        h+=10
-                    else:
-                        h-=10
-                elif isinstance(field, Pawn):
-                    if field.is_blue():
-                        h+=1
-                    else:
-                        h-=1
-                #ToDo
+                if field_type == 'b_king':
+                    h+=10
+                elif field_type == 'w_king':
+                    h-=10
+                elif field_type == 'b_pawn':
+                    h+=1
+                elif field_type == 'w_pawn':
+                    h-=1
+
+        return h
+
+    def evaluate2(self):
+        h=0
+        for row in range(BOARD_WIDTH):
+            for col in range((row+1) % 2, BOARD_WIDTH, 2):
+                field = self.board[row][col]
+                field_type = self.get_field_type(row, col)
+
+                if field_type == 'b_king':
+                    h+=10
+                elif field_type == 'w_king':
+                    h-=10
+                elif row <= BOARD_WIDTH/2:
+                    if field_type == 'b_pawn':
+                        h += 5
+                    elif field_type == 'w_pawn':
+                        h -= 7
+                else:
+                    if field_type == 'b_pawn':
+                        h += 7
+                    elif field_type == 'w_pawn':
+                        h -= 5
+
         return h
 
     def get_possible_moves(self, is_blue_turn):
@@ -577,10 +613,10 @@ def main():
     end = time.time()
     print("Time:", end-start)
 
-    start = time.time()
-    play_not_visualized()
-    end = time.time()
-    print("Time:", end-start)
+    # start = time.time()
+    # play_not_visualized()
+    # end = time.time()
+    # print("Time:", end-start)
 
 
 
