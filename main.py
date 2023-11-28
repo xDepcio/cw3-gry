@@ -480,12 +480,8 @@ class BoardsInfo:
             board_d = []
             for col in board.board:
                 for field in col:
-                    if isinstance(field, King):
-                        board_d.append('K')
-                    elif isinstance(field, Pawn):
-                        board_d.append('P')
-                    else:
-                        board_d.append('.')
+                    board_d.append(str(field))
+
             boards_data.append(board_d)
 
         # print("BD", boards_data)
