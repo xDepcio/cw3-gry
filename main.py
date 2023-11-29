@@ -418,8 +418,7 @@ class Game:
 
 
 def minimax_a_b(board, depth, move_max, eval_func: Callable[[Board], int | float]):
-    best_eval, best_move = minimax_a_b_recurr(board, depth, move_max, eval_func)
-    # print("Best move:", best_move, best_eval)
+    _, best_move = minimax_a_b_recurr(board, depth, move_max, eval_func)
     return best_move
 
 
@@ -476,8 +475,6 @@ class BoardsInfo:
 
             boards_data.append(board_d)
 
-        # print("BD", boards_data)
-
         for i in range(len(boards_data)-1):
             for j in range(len(boards_data[0])):
                 if boards_data[i][j] != boards_data[i+1][j]:
@@ -492,7 +489,6 @@ def evaluate0(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
         for col in range((row+1) % 2, BOARD_WIDTH, 2):
-            field = board.board[row][col]
             field_type = board.get_field_type(row, col)
 
             if field_type == 'b_king':
@@ -510,7 +506,6 @@ def evaluate1(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
         for col in range((row+1) % 2, BOARD_WIDTH, 2):
-            field = board.board[row][col]
             field_type = board.get_field_type(row, col)
 
             if field_type == 'b_king':
@@ -559,7 +554,6 @@ def evaluate2(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
         for col in range((row+1) % 2, BOARD_WIDTH, 2):
-            field = board.board[row][col]
             field_type = board.get_field_type(row, col)
 
             if field_type == 'b_king':
@@ -583,7 +577,6 @@ def evaluate3(board: Board):
     h=0
     for row in range(BOARD_WIDTH):
         for col in range((row+1) % 2, BOARD_WIDTH, 2):
-            field = board.board[row][col]
             field_type = board.get_field_type(row, col)
 
             if field_type == 'b_king':
@@ -629,7 +622,6 @@ def play_visualized(
                 move = minimax_a_b( deepcopy(game.board), white_minimax_depth, not game.board.white_turn, white_eval_func)
             else:
                 move = minimax_a_b( deepcopy(game.board), blue_minimax_depth, not game.board.white_turn, blue_eval_func)
-            # move = minimax_a_b( deepcopy(game.board), minimax_depth, not game.board.white_turn, eval_func)
             game.board.make_ai_move(move)
 
         if not game.board.white_turn:
@@ -685,46 +677,30 @@ def play_not_visualized(
                     return 'draw'
 
 def main():
-    test_params = (
-        ((evaluate0, 4), (evaluate0, 3)),
-        ((evaluate0, 4), (evaluate0, 2)),
-        ((evaluate0, 3), (evaluate0, 2)),
-        ((evaluate0, 3), (evaluate0, 1)),
-        ((evaluate0, 2), (evaluate0, 1)),
+    play_visualized(all_bots=True)
+    # test_params = (
+    #     ((evaluate0, 4), (evaluate0, 3)),
+    #     ((evaluate0, 4), (evaluate0, 2)),
+    #     ((evaluate0, 3), (evaluate0, 2)),
+    #     ((evaluate0, 3), (evaluate0, 1)),
+    #     ((evaluate0, 2), (evaluate0, 1)),
+    # )
 
-        # ((evaluate0, 6), (evaluate1, 2)),
-        # ((evaluate0, 6), (evaluate2, 5)),
-        # ((evaluate0, 6), (evaluate3, 5)),
-        # ((evaluate1, 6), (evaluate2, 5)),
-        # ((evaluate1, 6), (evaluate3, 3)),
-        # ((evaluate2, 6), (evaluate3, 5)),
-    )
-
-    print("White_eval_func, White_depth, Blue_eval_func, Blue_depth, result")
-    for (white_eval_func, white_depth), (blue_eval_func, blue_depth) in test_params:
-        result = play_not_visualized(
-            white_eval_func=white_eval_func,
-            white_minimax_depth=white_depth,
-            blue_eval_func=blue_eval_func,
-            blue_minimax_depth=blue_depth
-        )
-        print(
-            white_eval_func.__name__,'\t',
-            white_depth,'\t',
-            blue_eval_func.__name__,'\t',
-            blue_depth,'\t',
-            result
-        )
-
-    # start = time.time()
-    # play_visualized(all_bots=False, white_eval_func=evaluate0, blue_eval_func=evaluate0)
-    # end = time.time()
-    # print("Time:", end-start)
-
-    # start = time.time()
-    # play_not_visualized()
-    # end = time.time()
-    # print("Time:", end-start)
+    # print("White_eval_func, White_depth, Blue_eval_func, Blue_depth, result")
+    # for (white_eval_func, white_depth), (blue_eval_func, blue_depth) in test_params:
+    #     result = play_not_visualized(
+    #         white_eval_func=white_eval_func,
+    #         white_minimax_depth=white_depth,
+    #         blue_eval_func=blue_eval_func,
+    #         blue_minimax_depth=blue_depth
+    #     )
+    #     print(
+    #         white_eval_func.__name__,'\t',
+    #         white_depth,'\t',
+    #         blue_eval_func.__name__,'\t',
+    #         blue_depth,'\t',
+    #         result
+    #     )
 
 if __name__ == "__main__":
     main()
