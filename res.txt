@@ -1,0 +1,33 @@
+White_eval_func, White_depth, Blue_eval_func, Blue_depth, result
+evaluate0 	 6 	 evaluate0 	 5 	 white
+evaluate0 	 5 	 evaluate0 	 3 	 white
+evaluate0 	 5 	 evaluate0 	 2 	 white
+evaluate0 	 5 	 evaluate0 	 1 	 white
+evaluate0 	 4 	 evaluate0 	 3 	 draw
+evaluate0 	 4 	 evaluate0 	 2 	 draw
+evaluate0 	 3 	 evaluate0 	 2 	 white
+evaluate0 	 3 	 evaluate0 	 1 	 white
+evaluate0 	 2 	 evaluate0 	 1 	 white
+.
+evaluate0 	 5 	 evaluate1 	 5 	 draw
+evaluate0 	 5 	 evaluate2 	 5 	 draw
+evaluate0 	 5 	 evaluate3 	 5 	 draw
+evaluate1 	 5 	 evaluate2 	 5 	 white
+evaluate1 	 5 	 evaluate3 	 5 	 draw
+evaluate2 	 5 	 evaluate3 	 5 	 white
+.
+evaluate0 	 6 	 evaluate1 	 5 	 draw
+evaluate0 	 6 	 evaluate2 	 5 	 white
+evaluate0 	 6 	 evaluate3 	 5 	 white
+evaluate1 	 6 	 evaluate2 	 5 	 draw
+evaluate1 	 6 	 evaluate3 	 5 	 draw
+evaluate2 	 6 	 evaluate3 	 5 	 draw
+.
+evaluate0 	 6 	 evaluate1 	 4 	 draw
+evaluate1 	 6 	 evaluate3 	 4 	 draw
+.
+evaluate0 	 6 	 evaluate1 	 3 	 draw
+evaluate1 	 6 	 evaluate3 	 3 	 white
+.
+evaluate0 	 6 	 evaluate1 	 2 	 white
+.

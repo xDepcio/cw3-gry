@@ -23,8 +23,6 @@ from copy import deepcopy
 
 FPS = 20
 
-MINIMAX_DEPTH = 5
-
 WIN_WIDTH = 800
 WIN_HEIGHT = 800
 
@@ -421,7 +419,7 @@ class Game:
 
 def minimax_a_b(board, depth, move_max, eval_func: Callable[[Board], int | float]):
     best_eval, best_move = minimax_a_b_recurr(board, depth, move_max, eval_func)
-    print("Best move:", best_move, best_eval)
+    # print("Best move:", best_move, best_eval)
     return best_move
 
 
@@ -599,7 +597,13 @@ def evaluate3(board: Board):
 
     return h
 
-def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=evaluate0):
+def play_visualized(
+        all_bots=False,
+        blue_eval_func: Callable[[Board], int | float]=evaluate0,
+        blue_minimax_depth=5,
+        white_eval_func: Callable[[Board], int | float]=evaluate0,
+        white_minimax_depth=5,
+    ):
     window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     is_running = True
     clock = pygame.time.Clock()
@@ -609,7 +613,6 @@ def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=ev
 
     while is_running:
         clock.tick(FPS)
-
 
         if game.board.end():
             is_running = False
@@ -622,7 +625,11 @@ def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=ev
             break
 
         if not game.board.white_turn or all_bots:
-            move = minimax_a_b( deepcopy(game.board), MINIMAX_DEPTH, not game.board.white_turn, eval_func)
+            if game.board.white_turn:
+                move = minimax_a_b( deepcopy(game.board), white_minimax_depth, not game.board.white_turn, white_eval_func)
+            else:
+                move = minimax_a_b( deepcopy(game.board), blue_minimax_depth, not game.board.white_turn, blue_eval_func)
+            # move = minimax_a_b( deepcopy(game.board), minimax_depth, not game.board.white_turn, eval_func)
             game.board.make_ai_move(move)
 
         if not game.board.white_turn:
@@ -645,24 +652,29 @@ def play_visualized(all_bots=False, eval_func: Callable[[Board], int | float]=ev
 
     pygame.quit()
 
-def play_not_visualized(eval_func: Callable[[Board], int | float]=evaluate0):
-    is_running = True
+def play_not_visualized(
+        blue_eval_func: Callable[[Board], int | float]=evaluate0,
+        blue_minimax_depth=5,
+        white_eval_func: Callable[[Board], int | float]=evaluate0,
+        white_minimax_depth=5,
+    ) -> Literal['white', 'blue', 'draw']:
     boards_info = BoardsInfo(5)
     added_last = False
     initial_board = Board(None)
 
-    while is_running:
+    while True:
         if initial_board.end():
-            is_running = False
             if len(initial_board.get_possible_moves(initial_board.white_turn)) == 0:
-                print("Blue won!")
+                return 'blue'
             elif len(initial_board.get_possible_moves(not initial_board.white_turn)) == 0:
-                print("White won!")
-            else:
-                print("Draw!")
-            break
+                return 'white'
+            return 'draw'
 
-        move = minimax_a_b( deepcopy(initial_board), MINIMAX_DEPTH, not initial_board.white_turn, eval_func)
+        if initial_board.white_turn:
+            move = minimax_a_b( deepcopy(initial_board), white_minimax_depth, not initial_board.white_turn, white_eval_func)
+        else:
+            move = minimax_a_b( deepcopy(initial_board), blue_minimax_depth, not initial_board.white_turn, blue_eval_func)
+
         initial_board.make_ai_move(move)
 
         if not initial_board.white_turn:
@@ -670,20 +682,49 @@ def play_not_visualized(eval_func: Callable[[Board], int | float]=evaluate0):
             if not added_last:
                 boards_info.add(deepcopy(initial_board))
                 if boards_info.boards_count() == boards_info.get_stored_length() and boards_info.are_all_equal():
-                    print("Draw!")
-                    is_running = False
+                    return 'draw'
 
 def main():
-    start = time.time()
-    play_visualized(all_bots=True, eval_func=evaluate1)
-    end = time.time()
-    print("Time:", end-start)
+    test_params = (
+        ((evaluate0, 4), (evaluate0, 3)),
+        ((evaluate0, 4), (evaluate0, 2)),
+        ((evaluate0, 3), (evaluate0, 2)),
+        ((evaluate0, 3), (evaluate0, 1)),
+        ((evaluate0, 2), (evaluate0, 1)),
+
+        # ((evaluate0, 6), (evaluate1, 2)),
+        # ((evaluate0, 6), (evaluate2, 5)),
+        # ((evaluate0, 6), (evaluate3, 5)),
+        # ((evaluate1, 6), (evaluate2, 5)),
+        # ((evaluate1, 6), (evaluate3, 3)),
+        # ((evaluate2, 6), (evaluate3, 5)),
+    )
+
+    print("White_eval_func, White_depth, Blue_eval_func, Blue_depth, result")
+    for (white_eval_func, white_depth), (blue_eval_func, blue_depth) in test_params:
+        result = play_not_visualized(
+            white_eval_func=white_eval_func,
+            white_minimax_depth=white_depth,
+            blue_eval_func=blue_eval_func,
+            blue_minimax_depth=blue_depth
+        )
+        print(
+            white_eval_func.__name__,'\t',
+            white_depth,'\t',
+            blue_eval_func.__name__,'\t',
+            blue_depth,'\t',
+            result
+        )
+
+    # start = time.time()
+    # play_visualized(all_bots=False, white_eval_func=evaluate0, blue_eval_func=evaluate0)
+    # end = time.time()
+    # print("Time:", end-start)
 
     # start = time.time()
     # play_not_visualized()
     # end = time.time()
     # print("Time:", end-start)
 
-
-
-main()
+if __name__ == "__main__":
+    main()
